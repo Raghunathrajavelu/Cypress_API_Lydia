@@ -1,51 +1,62 @@
 /// <reference types="cypress" />
 
 describe("Reqres API Testing - Register + Get User", () => {
-  
+
   const baseUrl = "https://reqres.in/api";
 
-  // Headers (no API key since reqres POST requires one)
-  const headers = {
-    "Content-Type": "application/json",cd C:\Users\DELL\cypress-api-test
-code .
+  // Add your API key here
+  const API_KEY = "YOUR_API_KEY_HERE";
 
+  const headers = {
+    "Content-Type": "application/json",
+    "x-api-key": API_KEY
   };
 
-  it("POST /register - Should attempt to register (expected 401 for fake API)", () => {
+  
+  it("POST /register - Should create a user successfully (200)", () => {
     cy.request({
       method: "POST",
       url: `${baseUrl}/register`,
       headers,
-      body: { email: "test@example.com", password: "123456" },
-      failOnStatusCode: false   // allow 401 but mark test as failed by assertion
+      body: {
+        email: "Raghu@lydia.com",
+        password: "Lydia123"
+      }
     }).then((response) => {
-      expect(response.status).to.eq(200);   // <-- This will fail normally
-      cy.log("Response:", JSON.stringify(response.body));
+      expect(response.status).to.eq(200);
+      expect(response.body).to.have.property("id");
+      expect(response.body).to.have.property("token");
+      cy.log("Response: " + JSON.stringify(response.body));
     });
   });
 
-  it("POST /register - Missing password should return 400 (API now returns 401)", () => {
+  
+  it("POST /register - Should return 400 when password is missing", () => {
     cy.request({
       method: "POST",
       url: `${baseUrl}/register`,
       headers,
-      body: { email: "test@example.com" },
+      body: {
+        email: "Raghu@lydia.com"
+      },
       failOnStatusCode: false
     }).then((response) => {
-      expect(response.status).to.eq(400);   // <-- This will fail normally
-      cy.log("Response:", JSON.stringify(response.body));
+      expect(response.status).to.eq(400);
+      expect(response.body).to.have.property("error", "Missing password");
+      cy.log("Response: " + JSON.stringify(response.body));
     });
   });
 
-  it("GET /users/:id - Should retrieve user details successfully (200)", () => {
+  
+  it("GET /users/2 - Should retrieve user successfully (200)", () => {
     cy.request({
       method: "GET",
       url: `${baseUrl}/users/2`,
       headers
     }).then((response) => {
       expect(response.status).to.eq(200);
-      expect(response.body.data).to.have.property("id", 2);
-      cy.log("Response:", JSON.stringify(response.body));
+      expect(response.body.data.id).to.eq(2);
+      cy.log("Response: " + JSON.stringify(response.body));
     });
   });
 
