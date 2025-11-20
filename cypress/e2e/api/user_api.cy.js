@@ -1,62 +1,53 @@
-/// <reference types="cypress" />
-
 describe("Reqres API Testing - Register + Get User", () => {
 
   const baseUrl = "https://reqres.in/api";
+  const apiKey = "reqres-free-v1";
 
-  // Add your API key here
-  const API_KEY = "YOUR_API_KEY_HERE";
-
-  const headers = {
-    "Content-Type": "application/json",
-    "x-api-key": API_KEY
-  };
-
-  
   it("POST /register - Should create a user successfully (200)", () => {
     cy.request({
       method: "POST",
       url: `${baseUrl}/register`,
-      headers,
+      headers: {
+        "x-api-key": apiKey
+      },
       body: {
-        email: "Raghu@lydia.com",
-        password: "Lydia123"
+        email: "eve.holt@reqres.in",
+        password: "pistol"
       }
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body).to.have.property("id");
       expect(response.body).to.have.property("token");
-      cy.log("Response: " + JSON.stringify(response.body));
     });
   });
 
-  
   it("POST /register - Should return 400 when password is missing", () => {
     cy.request({
       method: "POST",
       url: `${baseUrl}/register`,
-      headers,
-      body: {
-        email: "Raghu@lydia.com"
+      headers: {
+        "x-api-key": apiKey
       },
-      failOnStatusCode: false
+      failOnStatusCode: false,
+      body: {
+        email: "eve.holt@reqres.in"
+      }
     }).then((response) => {
       expect(response.status).to.eq(400);
-      expect(response.body).to.have.property("error", "Missing password");
-      cy.log("Response: " + JSON.stringify(response.body));
+      expect(response.body.error).to.eq("Missing password");
     });
   });
 
-  
   it("GET /users/2 - Should retrieve user successfully (200)", () => {
     cy.request({
       method: "GET",
       url: `${baseUrl}/users/2`,
-      headers
+      headers: {
+        "x-api-key": apiKey
+      }
     }).then((response) => {
       expect(response.status).to.eq(200);
       expect(response.body.data.id).to.eq(2);
-      cy.log("Response: " + JSON.stringify(response.body));
     });
   });
 
